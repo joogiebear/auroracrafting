@@ -1,0 +1,17 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Next.js build output
+.next/
+out/
+
+# PM2 logs
+pm2.log
+logs/
+
+# Environment files
+.env
+.env.local
+.env.production

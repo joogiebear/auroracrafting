@@ -1,0 +1,17 @@
+recipes:
+  - id: "enchanted_diamond"
+    shapeless: false
+    permission: "craft.enchanted.diamond"
+    result: "eco:ecoitems:enchanted_diamond"
+    locked-lore:
+      - "&7You need &aDiamond collection level 3 &7to unlock this recipe."
+    ingredients:
+      - ""
+      - "minecraft:diamond/32"
+      - ""
+      - "minecraft:diamond/32"
+      - "minecraft:diamond/32"
+      - "minecraft:diamond/32"
+      - ""
+      - "minecraft:diamond/32"
+      - ""
