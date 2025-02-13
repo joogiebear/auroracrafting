@@ -37,10 +37,10 @@ export default function Home() {
 
   const [downloadUrl, setDownloadUrl] = useState<string>("");
 
-  const handleResultChange = (option: string) => {
+  const handleResultChange = (option: keyof typeof resultOptions) => {
     setSelectedResult(option);
-    setCustomResult(resultOptions[option]); // Autofill the result field
-  };
+    setCustomResult(resultOptions[option] ?? ""); // Autofill or fallback to empty string
+  };  
 
   const formatIngredients = (input: string): string[] => {
     return input.split("\n").map(line => (line.trim() === "" ? "" : line.trim()));
@@ -96,7 +96,8 @@ export default function Home() {
           <label className="block text-sm">Select Result Type:</label>
           <select
             className="w-full p-2 rounded bg-gray-700 border border-gray-600"
-            onChange={(e) => handleResultChange(e.target.value)}
+            onChange={(e) => handleResultChange(e.target.value as keyof typeof resultOptions)}
+
             value={selectedResult}
           >
             <option value="">-- Select an option (optional) --</option>
