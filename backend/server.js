@@ -65,12 +65,18 @@ app.post("/generate", (req, res) => {
 // Endpoint to download the YAML file
 app.get("/download/:id", (req, res) => {
     const filePath = path.join(__dirname, "storage", `${req.params.id}.yml`);
-    if (fs.existsSync(filePath)) {
-        res.download(filePath);
-    } else {
-        res.status(404).json({ error: "File not found" });
+    
+    if (!fs.existsSync(filePath)) {
+        console.error(`File not found: ${filePath}`);
+        return res.status(404).send("Error: File not found.");
     }
+
+    res.setHeader("Content-Disposition", `attachment; filename="${req.params.id}.yml"`);
+    res.setHeader("Content-Type", "application/x-yaml");
+
+    res.sendFile(filePath);
 });
+
 
 // Ensure storage directory exists
 if (!fs.existsSync(path.join(__dirname, "storage"))) {
