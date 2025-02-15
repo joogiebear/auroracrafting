@@ -57,15 +57,11 @@ export default function Home() {
     };
 
     try {
-      const { data } = await axios.post<{ downloadUrl: string }>(
-        "https://fruit.slicie.cloud/api/generate",
-        recipeData
-    );
-    
-    setDownloadUrl(`https://fruit.slicie.cloud${data.downloadUrl}`);    
+      const response = await axios.post("https://fruit.slicie.cloud/api/generate", recipeData);
+      setDownloadUrl(`https://fruit.slicie.cloud${response.data.downloadUrl}`);
     } catch (error) {
       console.error("Error generating YAML:", error);
-    }
+    }    
   };
 
   return (
