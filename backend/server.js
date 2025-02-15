@@ -8,7 +8,13 @@ const app = express();
 const PORT = 5000;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "https://fruit.slicie.cloud",  // Allow frontend domain
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type"],
+    credentials: true
+}));
+
 
 // Endpoint to generate YAML file
 app.post("/generate", (req, res) => {
