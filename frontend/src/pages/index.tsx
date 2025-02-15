@@ -61,7 +61,7 @@ export default function Home() {
         "https://fruit.slicie.cloud/api/generate",  // ✅ Correct backend API
         recipeData
       );          
-      setDownloadUrl(`https://fruit.slicie.cloud${response.data.downloadUrl}`);
+      setDownloadUrl(`https://fruit.slicie.cloud/download/${id}`);
     } catch (error) {
       console.error("Error generating YAML:", error);
     }
