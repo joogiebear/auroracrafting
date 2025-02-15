@@ -59,7 +59,7 @@ app.post("/generate", (req, res) => {
     const filePath = path.join(__dirname, "storage", `${id}.yml`);
 
     fs.writeFileSync(filePath, yamlString);
-    res.json({ message: "YAML file generated successfully", downloadUrl: `/download/${id}` });
+    res.json({ message: "YAML file generated successfully", downloadUrl: `https://fruit.slicie.cloud/download/${id}` });
 });
 
 // Endpoint to download the YAML file
