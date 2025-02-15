@@ -18,7 +18,20 @@ app.use(cors({
 
 // Endpoint to generate YAML file
 app.post("/generate", (req, res) => {
-    const { id, shapeless, permission, result, lockedLore, ingredients } = req.body;
+    const {
+        id = "",
+        shapeless = false,
+        permission = "",
+        result = "",
+        lockedLore = [],
+        ingredients = []
+    } = req.body;
+    
+    // Ensure ingredients is always an array
+    if (!Array.isArray(ingredients)) {
+        return res.status(400).json({ error: "Ingredients must be an array" });
+    }
+    
     
     if (!id) {
         return res.status(400).json({ error: "Recipe ID is required" });
