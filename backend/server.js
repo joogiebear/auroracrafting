@@ -26,7 +26,7 @@ app.post("/generate", (req, res) => {
                 permission,
                 result,
                 "locked-lore": lockedLore,
-                ingredients: ingredients.map(ingredient => ingredient === "" ? "" : ingredient) // Ensure blank lines are correct
+                ingredients: (ingredients || []).map(ingredient => ingredient === "" ? "" : ingredient)
             }
         ]
     };    
