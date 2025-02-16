@@ -50,31 +50,32 @@ export default function Home() {
       shapeless,
       permission,
       result: customResult,
-      lockedLore: lockedLore.split("\n"),
-      ingredients: formatIngredients(ingredients),
+      lockedLore: lockedLore ? lockedLore.split("\n") : [],
+      ingredients: ingredients ? formatIngredients(ingredients) : [] // ✅ Ensure it's always an array
     };
 
     try {
       const response = await axios.post(
         "https://fruit.slicie.cloud/api/generate",
         recipeData,
-        { responseType: "blob" } // 👈 Ensures proper file download handling
+        { responseType: "blob" } // ✅ Ensures the response is treated as a file
       );
 
-      // Create a download link
+      // Create a temporary URL for downloading
       const blob = new Blob([response.data], { type: "application/x-yaml" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${id}.yml`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", `${id}.yml`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error("Error generating YAML:", error);
     }
-  };
+};
+
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
