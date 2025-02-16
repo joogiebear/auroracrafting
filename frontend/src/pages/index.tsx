@@ -41,26 +41,33 @@ export default function Home() {
   };
 
   const formatIngredients = (input: string): string[] => {
-    return input.split("\n").map(line => (line.trim() === "" ? "" : line.trim()));
+    // Ensure there are always 9 lines, even if empty
+    const lines = input.split("\n");
+    while (lines.length < 9) {
+      lines.push(""); // Add empty lines if less than 9
+    }
+    return lines.slice(0, 9); // Only keep 9 lines max
   };
-
+  
   const handleGenerate = async () => {
+    const formattedIngredients = formatIngredients(ingredients);
+  
     const recipeData: RecipeData = {
       id,
       shapeless,
       permission,
       result: customResult,
       lockedLore: lockedLore ? lockedLore.split("\n") : [],
-      ingredients: ingredients ? formatIngredients(ingredients) : [] // ✅ Ensure it's always an array
+      ingredients: formattedIngredients
     };
-
+  
     try {
       const response = await axios.post(
         "https://fruit.slicie.cloud/api/generate",
         recipeData,
-        { responseType: "blob" } // ✅ Ensures the response is treated as a file
+        { responseType: "blob" }
       );
-
+  
       // Create a temporary URL for downloading
       const blob = new Blob([response.data], { type: "application/x-yaml" });
       const downloadUrl = URL.createObjectURL(blob);
@@ -74,7 +81,8 @@ export default function Home() {
     } catch (error) {
       console.error("Error generating YAML:", error);
     }
-};
+  };
+  
 
 
   return (
@@ -126,12 +134,19 @@ export default function Home() {
         </div>
 
         <div className="mb-3">
-          <label className="block text-sm">Ingredients (one per line):</label>
-          <textarea className="w-full p-2 rounded bg-gray-700 border border-gray-600 h-32"
-            value={ingredients} onChange={(e) => setIngredients(e.target.value)}
-            placeholder="minecraft:diamond/32"
+          <label className="block text-sm">Ingredients (one per line, up to 9):</label>
+          <textarea
+            className="w-full p-2 rounded bg-gray-700 border border-gray-600 h-32"
+            value={ingredients}
+            onChange={(e) => setIngredients(formatIngredients(e.target.value).join("\n"))}
+            placeholder='Enter ingredients, leave empty slots for ""'
+            style={{
+              lineHeight: "1.5",
+              whiteSpace: "pre-wrap"
+            }}
           />
         </div>
+        F
 
         <button onClick={handleGenerate} className="w-full p-2 bg-blue-500 hover:bg-blue-600 rounded font-bold mt-4">
           Generate YAML
