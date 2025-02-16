@@ -146,7 +146,6 @@ export default function Home() {
             }}
           />
         </div>
-        F
 
         <button onClick={handleGenerate} className="w-full p-2 bg-blue-500 hover:bg-blue-600 rounded font-bold mt-4">
           Generate YAML
