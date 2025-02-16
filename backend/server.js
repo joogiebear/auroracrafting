@@ -14,7 +14,7 @@ app.use(cors({
 
 // Endpoint to generate YAML and send it to the user immediately
 app.post("/generate", (req, res) => {
-    const {
+    let {
         id = "",
         shapeless = false,
         permission = "",
@@ -23,9 +23,14 @@ app.post("/generate", (req, res) => {
         ingredients = []
     } = req.body;
 
-    // Ensure 'ingredients' and 'lockedLore' are always arrays
     if (!Array.isArray(ingredients)) ingredients = [];
     if (!Array.isArray(lockedLore)) lockedLore = [];
+
+    // Ensure there are exactly 9 ingredients (fill empty slots with "")
+    while (ingredients.length < 9) {
+        ingredients.push("");
+    }
+    ingredients = ingredients.slice(0, 9); // Limit to exactly 9 entries
 
     if (!id) {
         return res.status(400).json({ error: "Recipe ID is required" });
@@ -39,12 +44,12 @@ app.post("/generate", (req, res) => {
                 permission,
                 result,
                 "locked-lore": lockedLore,
-                ingredients: ingredients.map(ingredient => ingredient || "")
+                ingredients
             }
         ]
     };
 
-    // YAML formatting options to avoid quoting keys and ensure proper structure
+    // YAML formatting options to ensure proper structure
     const yamlString = YAML.stringify(yamlData, {
         defaultKeyType: "PLAIN",
         defaultStringType: "QUOTE_DOUBLE"
@@ -54,6 +59,7 @@ app.post("/generate", (req, res) => {
     res.setHeader("Content-Type", "application/x-yaml");
     res.send(yamlString);
 });
+
 
 
 app.listen(PORT, "0.0.0.0", () => {
