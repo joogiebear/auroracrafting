@@ -7,15 +7,14 @@ const PORT = 5000;
 
 app.use(express.json());
 app.use(cors({
-    origin: "https://fruit.slicie.cloud",  // Allow frontend domain
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: "https://fruit.slicie.cloud",
+    methods: "POST",
     allowedHeaders: ["Content-Type"],
-    credentials: true
 }));
 
-// Endpoint to generate YAML file (direct response, no storage)
+// Endpoint to generate YAML and send it to the user immediately
 app.post("/generate", (req, res) => {
-    const {
+    let {
         id = "",
         shapeless = false,
         permission = "",
@@ -24,38 +23,44 @@ app.post("/generate", (req, res) => {
         ingredients = []
     } = req.body;
 
+    if (!Array.isArray(ingredients)) ingredients = [];
+    if (!Array.isArray(lockedLore)) lockedLore = [];
+
+    // Ensure there are exactly 9 ingredients (fill empty slots with "")
+    while (ingredients.length < 9) {
+        ingredients.push("");
+    }
+    ingredients = ingredients.slice(0, 9); // Limit to exactly 9 entries
+
     if (!id) {
         return res.status(400).json({ error: "Recipe ID is required" });
     }
 
-    // Ensure ingredients is an array and properly formatted
-    const formattedIngredients = Array.isArray(ingredients)
-        ? ingredients.map(ingredient => ingredient === "" ? '""' : ingredient)
-        : [];
-
     const yamlData = {
         recipes: [
             {
-                id, // ✅ Unquoted ID
+                id,
                 shapeless,
                 permission,
                 result,
                 "locked-lore": lockedLore,
-                ingredients: formattedIngredients
+                ingredients
             }
         ]
     };
 
-    // Convert to YAML, ensuring unquoted ID
+    // YAML formatting options to ensure proper structure
     const yamlString = YAML.stringify(yamlData, {
-        defaultKeyType: "PLAIN", // ✅ Prevents quoting keys like `id`
-        defaultStringType: "QUOTE_DOUBLE" // Ensures double quotes only when needed
+        defaultKeyType: "PLAIN",
+        defaultStringType: "QUOTE_DOUBLE"
     });
 
     res.setHeader("Content-Disposition", `attachment; filename="${id}.yml"`);
     res.setHeader("Content-Type", "application/x-yaml");
-    res.send(yamlString); // ✅ Sends the YAML directly for download
+    res.send(yamlString);
 });
+
+
 
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server is running on http://0.0.0.0:${PORT}`);
