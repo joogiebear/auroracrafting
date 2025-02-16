@@ -35,16 +35,14 @@ export default function Home() {
   const [lockedLore, setLockedLore] = useState<string>("");
   const [ingredients, setIngredients] = useState<string>("");
 
-  const [downloadUrl, setDownloadUrl] = useState<string>("");
-
   const handleResultChange = (option: keyof typeof resultOptions) => {
     setSelectedResult(option);
     setCustomResult(resultOptions[option] ?? ""); // Autofill or fallback to empty string
-  };  
+  };
 
   const formatIngredients = (input: string): string[] => {
     return input.split("\n").map(line => (line.trim() === "" ? "" : line.trim()));
-  };  
+  };
 
   const handleGenerate = async () => {
     const recipeData: RecipeData = {
@@ -53,15 +51,29 @@ export default function Home() {
       permission,
       result: customResult,
       lockedLore: lockedLore.split("\n"),
-      ingredients: formatIngredients(ingredients), // Format the ingredients
+      ingredients: formatIngredients(ingredients),
     };
 
     try {
-      const response = await axios.post("https://fruit.slicie.cloud/api/generate", recipeData);
-      setDownloadUrl(`https://fruit.slicie.cloud${response.data.downloadUrl}`);
+      const response = await axios.post(
+        "https://fruit.slicie.cloud/api/generate",
+        recipeData,
+        { responseType: "blob" } // 👈 Ensures proper file download handling
+      );
+
+      // Create a download link
+      const blob = new Blob([response.data], { type: "application/x-yaml" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${id}.yml`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
     } catch (error) {
       console.error("Error generating YAML:", error);
-    }    
+    }
   };
 
   return (
@@ -91,28 +103,20 @@ export default function Home() {
 
         <div className="mb-3">
           <label className="block text-sm">Select Result Type:</label>
-          <select
-            className="w-full p-2 rounded bg-gray-700 border border-gray-600"
+          <select className="w-full p-2 rounded bg-gray-700 border border-gray-600"
             onChange={(e) => handleResultChange(e.target.value as keyof typeof resultOptions)}
-
             value={selectedResult}
           >
             <option value="">-- Select an option (optional) --</option>
             {Object.keys(resultOptions).map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
+              <option key={option} value={option}>{option}</option>
             ))}
           </select>
         </div>
 
         <div className="mb-3">
           <label className="block text-sm">Result Item:</label>
-          <input
-            className="w-full p-2 rounded bg-gray-700 border border-gray-600"
-            value={customResult}
-            onChange={(e) => setCustomResult(e.target.value)}
-          />
+          <input className="w-full p-2 rounded bg-gray-700 border border-gray-600" value={customResult} onChange={(e) => setCustomResult(e.target.value)} />
         </div>
 
         <div className="mb-3">
@@ -122,33 +126,15 @@ export default function Home() {
 
         <div className="mb-3">
           <label className="block text-sm">Ingredients (one per line):</label>
-          <textarea
-            className="w-full p-2 rounded bg-gray-700 border border-gray-600 h-32"
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
+          <textarea className="w-full p-2 rounded bg-gray-700 border border-gray-600 h-32"
+            value={ingredients} onChange={(e) => setIngredients(e.target.value)}
             placeholder="minecraft:diamond/32"
-            style={{
-              lineHeight: "1.5",
-              whiteSpace: "pre-wrap",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
-            }}
           />
         </div>
 
-        <button
-          onClick={handleGenerate}
-          className="w-full p-2 bg-blue-500 hover:bg-blue-600 rounded font-bold mt-4"
-        >
+        <button onClick={handleGenerate} className="w-full p-2 bg-blue-500 hover:bg-blue-600 rounded font-bold mt-4">
           Generate YAML
         </button>
-
-        {downloadUrl && (
-          <div className="mt-4 text-center">
-            <a href={downloadUrl} download className="text-blue-400 hover:underline">
-              Download {id}.yml
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );
